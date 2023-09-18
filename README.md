@@ -1,2 +1,6 @@
-# alura-challange-1
-Desafio da Alura de nº 1.
+# Alura Chalange nº 1
+
+### 1º Semana
+
+O Desafio da semana nº 1 está em `Andamento`
+
