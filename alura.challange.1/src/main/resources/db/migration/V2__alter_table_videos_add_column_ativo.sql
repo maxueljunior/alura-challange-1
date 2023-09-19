@@ -1,0 +1,1 @@
+ALTER TABLE tb_videos ADD ativo bit NOT NULL;
