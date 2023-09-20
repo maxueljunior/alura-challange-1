@@ -3,6 +3,7 @@ package br.com.leuxam.alura.challange1.domain.videos;
 import br.com.leuxam.alura.challange1.domain.categorias.Categorias;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,7 +33,7 @@ public class Videos {
 	private String url;
 	private Boolean ativo;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "categoria_id")
 	private Categorias categorias;
 	

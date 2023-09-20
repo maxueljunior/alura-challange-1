@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record DadosCriarVideos(
-		@NotNull
 		Long idCategoria,
 		@NotBlank
 		String titulo,

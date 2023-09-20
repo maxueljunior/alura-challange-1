@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -50,6 +51,16 @@ public class VideosController {
 		var video = videosRepository.findByIdAndAtivoTrue(id);
 		
 		return ResponseEntity.ok(new DadosDetalhamentoVideos(video));
+	}
+	
+	@GetMapping("/")
+	public ResponseEntity<List<DadosDetalhamentoVideos>> findByTitulo(
+			@RequestParam(value = "search") String titulo){
+		System.out.println(titulo);
+		var videos = videosRepository.findAllByTitulo(titulo).stream()
+				.map(DadosDetalhamentoVideos::new)
+				.collect(Collectors.toList());
+		return ResponseEntity.ok(videos);
 	}
 	
 	@PostMapping

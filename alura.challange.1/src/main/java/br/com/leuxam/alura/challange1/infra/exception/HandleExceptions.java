@@ -38,7 +38,7 @@ public class HandleExceptions {
 	
 	public record TratadorDeErrosRequisicao(String field, String defaultMessage) {
 		public TratadorDeErrosRequisicao(FieldError error) {
-			this(error.getField(), error.getDefaultMessage());
+			this(error.getField(), "O campo é obrigatorio!");
 		}
 	}
 }

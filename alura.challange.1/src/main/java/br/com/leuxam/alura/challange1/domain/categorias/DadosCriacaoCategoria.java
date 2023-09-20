@@ -9,5 +9,5 @@ public record DadosCriacaoCategoria(
 		@NotBlank
 		@Pattern(regexp = "#[A-Z0-9]{6}")
 		String cor) {
-
+	
 }

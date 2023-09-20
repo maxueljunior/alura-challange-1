@@ -21,6 +21,8 @@ import br.com.leuxam.alura.challange1.domain.categorias.CategoriasRepository;
 import br.com.leuxam.alura.challange1.domain.categorias.DadosAtualizacaoCategoria;
 import br.com.leuxam.alura.challange1.domain.categorias.DadosCriacaoCategoria;
 import br.com.leuxam.alura.challange1.domain.categorias.DadosDetalhamentoCategorias;
+import br.com.leuxam.alura.challange1.domain.videos.DadosDetalhamentoVideos;
+import br.com.leuxam.alura.challange1.domain.videos.VideosRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
@@ -29,11 +31,14 @@ import jakarta.validation.Valid;
 public class CategoriasController {
 	
 	@Autowired
-	private CategoriasRepository repository;
+	private CategoriasRepository categoriasRepository;
+	
+	@Autowired
+	private VideosRepository videosRepository;
 	
 	@GetMapping
 	public ResponseEntity<List<DadosDetalhamentoCategorias>> findAll(){
-		var categorias = repository.findAll().stream()
+		var categorias = categoriasRepository.findAll().stream()
 				.map(DadosDetalhamentoCategorias::new)
 				.collect(Collectors.toList());
 		return ResponseEntity.ok(categorias);
@@ -42,9 +47,18 @@ public class CategoriasController {
 	@GetMapping("{id}")
 	public ResponseEntity<DadosDetalhamentoCategorias> findById(
 			@PathVariable(name = "id") Long id){
-		var categoria = repository.getReferenceById(id);
+		var categoria = categoriasRepository.getReferenceById(id);
 		
 		return ResponseEntity.ok(new DadosDetalhamentoCategorias(categoria));
+	}
+	
+	@GetMapping("/{id}/videos")
+	public ResponseEntity<List<DadosDetalhamentoVideos>> findAllVideosByCategoria(
+			@PathVariable(name = "id") Long id){
+		var videos = videosRepository.findAllByIdCategoria(id)
+					.stream().map(DadosDetalhamentoVideos::new)
+					.collect(Collectors.toList());
+		return ResponseEntity.ok(videos);
 	}
 	
 	@PostMapping
@@ -53,7 +67,7 @@ public class CategoriasController {
 			@RequestBody @Valid DadosCriacaoCategoria dados,
 			UriComponentsBuilder uriBuilder){
 		var categoria = new Categorias(dados);
-		repository.save(categoria);
+		categoriasRepository.save(categoria);
 		URI uri = uriBuilder.path("/categorias/{id}").buildAndExpand(categoria.getId()).toUri();
 		return ResponseEntity.created(uri).body(new DadosDetalhamentoCategorias(categoria));
 	}
@@ -62,7 +76,7 @@ public class CategoriasController {
 	@Transactional
 	public ResponseEntity<DadosDetalhamentoCategorias> update(
 			@RequestBody @Valid DadosAtualizacaoCategoria dados){
-		var categoria = repository.findById(dados.id()).get();
+		var categoria = categoriasRepository.findById(dados.id()).get();
 		categoria.atualizar(dados);
 		return ResponseEntity.ok(new DadosDetalhamentoCategorias(categoria));
 	}
@@ -70,8 +84,8 @@ public class CategoriasController {
 	@DeleteMapping("/{id}")
 	@Transactional
 	public ResponseEntity delete(@PathVariable(name = "id") Long id) {
-		var categoria = repository.findById(id).get();
-		repository.delete(categoria);
+		var categoria = categoriasRepository.findById(id).get();
+		categoriasRepository.delete(categoria);
 		return ResponseEntity.noContent().build();
 	}
 }
