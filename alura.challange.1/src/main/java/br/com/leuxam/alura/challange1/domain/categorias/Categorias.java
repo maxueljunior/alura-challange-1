@@ -1,11 +1,15 @@
 package br.com.leuxam.alura.challange1.domain.categorias;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import br.com.leuxam.alura.challange1.domain.videos.Videos;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

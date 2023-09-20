@@ -19,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import br.com.leuxam.alura.challange1.domain.videos.DadosAtualizadosVideo;
 import br.com.leuxam.alura.challange1.domain.videos.DadosCriarVideos;
 import br.com.leuxam.alura.challange1.domain.videos.DadosDetalhamentoVideos;
+import br.com.leuxam.alura.challange1.domain.videos.VideoService;
 import br.com.leuxam.alura.challange1.domain.videos.Videos;
 import br.com.leuxam.alura.challange1.domain.videos.VideosRepository;
 import jakarta.transaction.Transactional;
@@ -29,11 +30,14 @@ import jakarta.validation.Valid;
 public class VideosController {
 	
 	@Autowired
-	private VideosRepository repository;
+	private VideoService service;
+	
+	@Autowired
+	private VideosRepository videosRepository;
 	
 	@GetMapping
 	public ResponseEntity<List<DadosDetalhamentoVideos>> findAll() {
-		var videos = repository.findAllByAtivoTrue().stream()
+		var videos = videosRepository.findAllByAtivoTrue().stream()
 				.map(DadosDetalhamentoVideos::new)
 				.collect(Collectors.toList());
 		
@@ -43,7 +47,7 @@ public class VideosController {
 	@GetMapping("/{id}")
 	public ResponseEntity<DadosDetalhamentoVideos> findById(
 			@PathVariable(name = "id") Long id){
-		var video = repository.findByIdAndAtivoTrue(id);
+		var video = videosRepository.findByIdAndAtivoTrue(id);
 		
 		return ResponseEntity.ok(new DadosDetalhamentoVideos(video));
 	}
@@ -52,8 +56,8 @@ public class VideosController {
 	@Transactional
 	public ResponseEntity<DadosDetalhamentoVideos> save(@RequestBody @Valid DadosCriarVideos dados,
 			UriComponentsBuilder uriBuilder){
-		var video = new Videos(dados);
-		repository.save(video);
+		
+		var video = service.save(dados);
 		URI uri = uriBuilder.path("/videos/{id}").buildAndExpand(video.getId()).toUri();
 		return ResponseEntity.created(uri).body(new DadosDetalhamentoVideos(video));
 	}
@@ -61,7 +65,7 @@ public class VideosController {
 	@PutMapping
 	@Transactional
 	public ResponseEntity update(@RequestBody @Valid DadosAtualizadosVideo dados){
-		var video = repository.findById(dados.id()).get();
+		var video = videosRepository.findById(dados.id()).get();
 		video.atualizarDados(dados);
 		return ResponseEntity.ok().build();
 	}
@@ -69,7 +73,7 @@ public class VideosController {
 	@DeleteMapping("/{id}")
 	@Transactional
 	public ResponseEntity delete(@PathVariable(name = "id") Long id) {
-		var video = repository.findById(id).get();
+		var video = videosRepository.findById(id).get();
 		video.desativar();
 		return ResponseEntity.noContent().build();
 	}
