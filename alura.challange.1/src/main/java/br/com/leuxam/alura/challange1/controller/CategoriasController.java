@@ -30,11 +30,15 @@ import jakarta.validation.Valid;
 @RequestMapping("/categorias")
 public class CategoriasController {
 	
-	@Autowired
 	private CategoriasRepository categoriasRepository;
 	
-	@Autowired
 	private VideosRepository videosRepository;
+	
+	public CategoriasController(CategoriasRepository categoriasRepository
+			, VideosRepository videosRepository) {
+		this.categoriasRepository = categoriasRepository;
+		this.videosRepository = videosRepository;
+	}
 	
 	@GetMapping
 	public ResponseEntity<List<DadosDetalhamentoCategorias>> findAll(){
