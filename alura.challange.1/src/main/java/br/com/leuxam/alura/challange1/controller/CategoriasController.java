@@ -30,15 +30,11 @@ import jakarta.validation.Valid;
 @RequestMapping("/categorias")
 public class CategoriasController {
 	
+	@Autowired
 	private CategoriasRepository categoriasRepository;
 	
+	@Autowired
 	private VideosRepository videosRepository;
-	
-	public CategoriasController(CategoriasRepository categoriasRepository
-			, VideosRepository videosRepository) {
-		this.categoriasRepository = categoriasRepository;
-		this.videosRepository = videosRepository;
-	}
 	
 	@GetMapping
 	public ResponseEntity<List<DadosDetalhamentoCategorias>> findAll(){
@@ -59,9 +55,9 @@ public class CategoriasController {
 	@GetMapping("/{id}/videos")
 	public ResponseEntity<List<DadosDetalhamentoVideos>> findAllVideosByCategoria(
 			@PathVariable(name = "id") Long id){
-		var videos = videosRepository.findAllByIdCategoria(id)
-					.stream().map(DadosDetalhamentoVideos::new)
+		var videos = videosRepository.findAllByIdCategoria(id).stream().map(DadosDetalhamentoVideos::new)
 					.collect(Collectors.toList());
+		
 		return ResponseEntity.ok(videos);
 	}
 	
