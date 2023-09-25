@@ -1,4 +1,4 @@
-package br.com.leuxam.alura.challange1.controller;
+package br.com.leuxam.alura.challange1.unittest.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -16,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -56,22 +57,21 @@ class CategoriasControllerTest {
 		var jsonEsperado = listDadosDetalhamento.write(mockVideos().stream()
 				.map(DadosDetalhamentoVideos::new).collect(Collectors.toList())).getJson();
 		
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 		assertThat(response.getContentAsString()).isEqualTo(jsonEsperado);
-		
-		System.out.println(jsonEsperado);
-		System.out.println(response.getContentAsString());
 	}
 	
 	@Test
 	@DisplayName("Deveria devolver codigo http 200, porem sem nenhum conteudo caso id categoria não exista")
 	void cenario_02() throws Exception {
 		
-		when(videosRepository.findAllByIdCategoria(100L)).thenReturn(null);
+		when(videosRepository.findAllByIdCategoria(100L)).thenReturn(new ArrayList<>());
 		
 		var response = mvc.perform(get("/categorias/100/videos"))
 						.andReturn().getResponse();
 		
-		assertThat(response.getContentAsString()).isBlank();
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+		assertThat(response.getContentAsString()).isEqualTo("[]");
 	}
 
 	public List<Videos> mockVideos(){

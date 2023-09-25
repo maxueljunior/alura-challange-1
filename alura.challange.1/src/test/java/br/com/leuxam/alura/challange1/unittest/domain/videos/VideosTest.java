@@ -1,4 +1,4 @@
-package br.com.leuxam.alura.challange1.domain.videos;
+package br.com.leuxam.alura.challange1.unittest.domain.videos;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -9,6 +9,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import br.com.leuxam.alura.challange1.domain.categorias.Categorias;
+import br.com.leuxam.alura.challange1.domain.videos.DadosAtualizadosVideo;
+import br.com.leuxam.alura.challange1.domain.videos.VideoDesativadoException;
+import br.com.leuxam.alura.challange1.domain.videos.Videos;
 
 class VideosTest {
 

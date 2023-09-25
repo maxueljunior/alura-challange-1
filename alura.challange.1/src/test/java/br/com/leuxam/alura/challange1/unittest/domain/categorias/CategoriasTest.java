@@ -1,9 +1,12 @@
-package br.com.leuxam.alura.challange1.domain.categorias;
+package br.com.leuxam.alura.challange1.unittest.domain.categorias;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import br.com.leuxam.alura.challange1.domain.categorias.Categorias;
+import br.com.leuxam.alura.challange1.domain.categorias.DadosAtualizacaoCategoria;
 
 class CategoriasTest {
 	
