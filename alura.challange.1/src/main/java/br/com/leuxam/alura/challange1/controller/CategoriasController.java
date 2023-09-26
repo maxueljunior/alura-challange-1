@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,10 +40,12 @@ public class CategoriasController {
 	private VideosRepository videosRepository;
 	
 	@GetMapping
-	public ResponseEntity<List<DadosDetalhamentoCategorias>> findAll(){
-		var categorias = categoriasRepository.findAll().stream()
-				.map(DadosDetalhamentoCategorias::new)
-				.collect(Collectors.toList());
+	public ResponseEntity<Page<DadosDetalhamentoCategorias>> findAll(
+			@PageableDefault(size = 5, sort= {"titulo"}) Pageable pageable){
+		
+		var categorias = categoriasRepository.findAll(pageable)
+				.map(DadosDetalhamentoCategorias::new);
+		
 		return ResponseEntity.ok(categorias);
 	}
 	
@@ -53,10 +58,12 @@ public class CategoriasController {
 	}
 	
 	@GetMapping("/{id}/videos")
-	public ResponseEntity<List<DadosDetalhamentoVideos>> findAllVideosByCategoria(
-			@PathVariable(name = "id") Long id){
-		var videos = videosRepository.findAllByIdCategoria(id).stream().map(DadosDetalhamentoVideos::new)
-					.collect(Collectors.toList());
+	public ResponseEntity<Page<DadosDetalhamentoVideos>> findAllVideosByCategoria(
+			@PathVariable(name = "id") Long id,
+			@PageableDefault(size = 5, sort= {"titulo"}) Pageable pageable){
+		
+		var videos = videosRepository.findAllByIdCategoria(id, pageable)
+				.map(DadosDetalhamentoVideos::new);
 		
 		return ResponseEntity.ok(videos);
 	}

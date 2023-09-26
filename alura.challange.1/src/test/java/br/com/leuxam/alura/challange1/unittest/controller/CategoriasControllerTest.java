@@ -1,6 +1,8 @@
 package br.com.leuxam.alura.challange1.unittest.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -16,8 +18,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import br.com.leuxam.alura.challange1.domain.categorias.Categorias;
@@ -49,7 +52,7 @@ class CategoriasControllerTest {
 		
 		var lista = mockVideos();
 		
-		when(videosRepository.findAllByIdCategoria(1L)).thenReturn(lista);
+		when(videosRepository.findAllByIdCategoria(eq(1L), any())).thenReturn(lista);
 		
 		var response = mvc.perform(get("/categorias/1/videos"))
 				.andReturn().getResponse();
@@ -58,23 +61,23 @@ class CategoriasControllerTest {
 				.map(DadosDetalhamentoVideos::new).collect(Collectors.toList())).getJson();
 		
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-		assertThat(response.getContentAsString()).isEqualTo(jsonEsperado);
+		assertThat(response.getContentAsString()).contains(jsonEsperado);
 	}
 	
 	@Test
 	@DisplayName("Deveria devolver codigo http 200, porem sem nenhum conteudo caso id categoria não exista")
 	void cenario_02() throws Exception {
 		
-		when(videosRepository.findAllByIdCategoria(100L)).thenReturn(new ArrayList<>());
+		when(videosRepository.findAllByIdCategoria(eq(100L), any())).thenReturn(new PageImpl<>(new ArrayList<>()));
 		
 		var response = mvc.perform(get("/categorias/100/videos"))
 						.andReturn().getResponse();
 		
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-		assertThat(response.getContentAsString()).isEqualTo("[]");
+		assertThat(response.getContentAsString()).contains("\"content\":[]");
 	}
 
-	public List<Videos> mockVideos(){
+	public Page<Videos> mockVideos(){
 		Categorias categoria = new Categorias(1L, "Entreterimento", "#FFFFFF");
 		List<Videos> dados = new ArrayList<>();
 		
@@ -82,7 +85,7 @@ class CategoriasControllerTest {
 		dados.add(new Videos(2L, "algo2", "descricao2", "url2", true, categoria));
 		dados.add(new Videos(3L, "algo3", "descricao3", "url3", true, categoria));
 		
-		return dados;
+		return new PageImpl<>(dados);
 	}
 	
 }

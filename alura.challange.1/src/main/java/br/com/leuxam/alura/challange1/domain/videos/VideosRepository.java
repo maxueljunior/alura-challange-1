@@ -2,21 +2,22 @@ package br.com.leuxam.alura.challange1.domain.videos;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface VideosRepository extends JpaRepository<Videos, Long>{
 	
-	List<Videos> findAllByAtivoTrue();
+	Page<Videos> findAllByAtivoTrue(Pageable pageable);
 	
 	Videos findByIdAndAtivoTrue(Long id);
 	
 	@Query("SELECT v FROM Videos v WHERE v.categorias.id = :id")
-	List<Videos> findAllByIdCategoria(Long id);
+	Page<Videos> findAllByIdCategoria(Long id, Pageable pageable);
 	
 	@Query("SELECT v FROM Videos v WHERE v.titulo LIKE %:titulo%")
-	List<Videos> findAllByTitulo(String titulo);
+	Page<Videos> findAllByTitulo(String titulo, Pageable pageable);
 }

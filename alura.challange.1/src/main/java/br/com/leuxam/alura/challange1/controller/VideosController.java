@@ -1,10 +1,12 @@
 package br.com.leuxam.alura.challange1.controller;
 
 import java.net.URI;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +23,6 @@ import br.com.leuxam.alura.challange1.domain.videos.DadosAtualizadosVideo;
 import br.com.leuxam.alura.challange1.domain.videos.DadosCriarVideos;
 import br.com.leuxam.alura.challange1.domain.videos.DadosDetalhamentoVideos;
 import br.com.leuxam.alura.challange1.domain.videos.VideoService;
-import br.com.leuxam.alura.challange1.domain.videos.Videos;
 import br.com.leuxam.alura.challange1.domain.videos.VideosRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -37,10 +38,10 @@ public class VideosController {
 	private VideosRepository videosRepository;
 	
 	@GetMapping
-	public ResponseEntity<List<DadosDetalhamentoVideos>> findAll() {
-		var videos = videosRepository.findAllByAtivoTrue().stream()
-				.map(DadosDetalhamentoVideos::new)
-				.collect(Collectors.toList());
+	public ResponseEntity<Page<DadosDetalhamentoVideos>> findAll(
+			@PageableDefault(size = 5, sort = {"titulo"}) Pageable pageable) {
+		
+		var videos = videosRepository.findAllByAtivoTrue(pageable).map(DadosDetalhamentoVideos::new);
 		
 		return ResponseEntity.ok().body(videos);
 	}
@@ -54,12 +55,12 @@ public class VideosController {
 	}
 	
 	@GetMapping("/")
-	public ResponseEntity<List<DadosDetalhamentoVideos>> findByTitulo(
-			@RequestParam(value = "search") String titulo){
-		System.out.println(titulo);
-		var videos = videosRepository.findAllByTitulo(titulo).stream()
-				.map(DadosDetalhamentoVideos::new)
-				.collect(Collectors.toList());
+	public ResponseEntity<Page<DadosDetalhamentoVideos>> findByTitulo(
+			@RequestParam(value = "search") String titulo,
+			@PageableDefault(size = 5, sort = {"titulo"}) Pageable pageable){
+		
+		var videos = videosRepository.findAllByTitulo(titulo, pageable).map(DadosDetalhamentoVideos::new);
+		
 		return ResponseEntity.ok(videos);
 	}
 	

@@ -2,6 +2,7 @@ package br.com.leuxam.alura.challange1.unittest.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -17,6 +18,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -43,14 +46,14 @@ class VideosControllerTest {
 	@DisplayName("Deveria retornar codigo HTTP 200 porem sem nenhum conteudo caso titulo passado não exista")
 	void cenario_01() throws Exception {
 		
-		when(videosRepository.findAllByTitulo("algumacoisa")).thenReturn(new ArrayList<>());
+		when(videosRepository.findAllByTitulo(eq("algumacoisa"), any())).thenReturn(new PageImpl<>(new ArrayList<>()));
 		
 		var response = mvc.perform(get("/videos/")
 					.param("search", "algumacoisa"))
 				.andReturn().getResponse();
 		
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-		assertThat(response.getContentAsString()).isEqualTo("[]");
+		assertThat(response.getContentAsString()).contains("\"content\":[]");
 	}
 	
 	@Test
@@ -59,7 +62,7 @@ class VideosControllerTest {
 		
 		var lista = mock();
 		
-		when(videosRepository.findAllByTitulo(any())).thenReturn(lista);
+		when(videosRepository.findAllByTitulo(eq("titulo"), any())).thenReturn(lista);
 		
 		var response = mvc.perform(get("/videos/?search=titulo"))
 				.andReturn().getResponse();
@@ -69,18 +72,18 @@ class VideosControllerTest {
 				.collect(Collectors.toList())).getJson();
 		
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-		assertThat(response.getContentAsString()).isEqualTo(jsonEsperado);
+		assertThat(response.getContentAsString()).contains(jsonEsperado);
 		
 	}
 	
-	public List<Videos> mock(){
+	public Page<Videos> mock(){
 		List<Videos> videos = new ArrayList<>();
 		var categoria = new Categorias(1L, "Musica", "#FFFFFF");
 		videos.add(new Videos(1L, "titulo 01", "descricao 01", "http://", true, categoria));
 		videos.add(new Videos(2L, "titulo 02", "descricao 02", "http://", true, categoria));
 		videos.add(new Videos(3L, "titulo 03", "descricao 03", "http://", true, categoria));
 		
-		return videos;
+		return new PageImpl<>(videos);
 	}
 }
 
