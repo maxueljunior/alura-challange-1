@@ -15,6 +15,8 @@ public interface VideosRepository extends JpaRepository<Videos, Long>{
 	
 	Videos findByIdAndAtivoTrue(Long id);
 	
+	Page<Videos> findTop3ByAtivoTrue(Pageable pageable);
+	
 	@Query("SELECT v FROM Videos v WHERE v.categorias.id = :id")
 	Page<Videos> findAllByIdCategoria(Long id, Pageable pageable);
 	

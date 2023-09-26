@@ -21,6 +21,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import br.com.leuxam.alura.challange1.domain.categorias.Categorias;
@@ -48,6 +49,7 @@ class CategoriasControllerTest {
 	
 	@Test
 	@DisplayName("Deveria devolver codigo http 200 com a lista de videos caso id categoria exista e contenha videos")
+	@WithMockUser
 	void test_cenario01() throws Exception {
 		
 		var lista = mockVideos();
@@ -66,6 +68,7 @@ class CategoriasControllerTest {
 	
 	@Test
 	@DisplayName("Deveria devolver codigo http 200, porem sem nenhum conteudo caso id categoria não exista")
+	@WithMockUser
 	void cenario_02() throws Exception {
 		
 		when(videosRepository.findAllByIdCategoria(eq(100L), any())).thenReturn(new PageImpl<>(new ArrayList<>()));

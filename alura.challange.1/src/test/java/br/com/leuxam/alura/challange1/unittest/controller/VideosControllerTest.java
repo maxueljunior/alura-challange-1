@@ -21,6 +21,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import br.com.leuxam.alura.challange1.domain.categorias.Categorias;
@@ -44,6 +45,7 @@ class VideosControllerTest {
 	
 	@Test
 	@DisplayName("Deveria retornar codigo HTTP 200 porem sem nenhum conteudo caso titulo passado não exista")
+	@WithMockUser
 	void cenario_01() throws Exception {
 		
 		when(videosRepository.findAllByTitulo(eq("algumacoisa"), any())).thenReturn(new PageImpl<>(new ArrayList<>()));
@@ -58,6 +60,7 @@ class VideosControllerTest {
 	
 	@Test
 	@DisplayName("Deveria retornar codigo HTTP 200 e o conteudo caso o titulo passado seja correto")
+	@WithMockUser
 	void cenario_02() throws Exception {
 		
 		var lista = mock();
@@ -65,6 +68,26 @@ class VideosControllerTest {
 		when(videosRepository.findAllByTitulo(eq("titulo"), any())).thenReturn(lista);
 		
 		var response = mvc.perform(get("/videos/?search=titulo"))
+				.andReturn().getResponse();
+		
+		var jsonEsperado = dadosDetalhamento.write(lista.stream()
+				.map(DadosDetalhamentoVideos::new)
+				.collect(Collectors.toList())).getJson();
+		
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+		assertThat(response.getContentAsString()).contains(jsonEsperado);
+		
+	}
+	
+	@Test
+	@DisplayName("Deveria retornar codigo HTTP 200 e o conteudo")
+	void cenario_03() throws Exception {
+		
+		var lista = mock();
+		
+		when(videosRepository.findTop3ByAtivoTrue(any())).thenReturn(lista);
+		
+		var response = mvc.perform(get("/videos/free"))
 				.andReturn().getResponse();
 		
 		var jsonEsperado = dadosDetalhamento.write(lista.stream()

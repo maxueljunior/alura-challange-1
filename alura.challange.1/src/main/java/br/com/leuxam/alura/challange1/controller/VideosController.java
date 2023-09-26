@@ -1,7 +1,6 @@
 package br.com.leuxam.alura.challange1.controller;
 
 import java.net.URI;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -61,6 +60,14 @@ public class VideosController {
 		
 		var videos = videosRepository.findAllByTitulo(titulo, pageable).map(DadosDetalhamentoVideos::new);
 		
+		return ResponseEntity.ok(videos);
+	}
+	
+	@GetMapping("/free")
+	public ResponseEntity<Page<DadosDetalhamentoVideos>> findByVideosFree(
+			@PageableDefault(size = 3, sort = {"titulo"}) Pageable pageable){
+		var videos = videosRepository.findTop3ByAtivoTrue(pageable)
+					.map(DadosDetalhamentoVideos::new);
 		return ResponseEntity.ok(videos);
 	}
 	

@@ -1,12 +1,18 @@
 package br.com.leuxam.alura.challange1.integrationtest.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
+import java.io.IOException;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,16 +20,23 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import br.com.leuxam.alura.challange1.domain.user.DadosLogin;
 import br.com.leuxam.alura.challange1.domain.videos.DadosDetalhamentoVideos;
 import br.com.leuxam.alura.challange1.domain.videos.VideosRepository;
+import br.com.leuxam.alura.challange1.infra.security.DadosAutenticacaoJWT;
+import br.com.leuxam.alura.challange1.infra.security.TokenService;
+import br.com.leuxam.alura.challange1.integrationtest.deserialization.WrapperVideos;
 
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 @AutoConfigureMockMvc
 @AutoConfigureJsonTesters
 @ActiveProfiles("test")
+@TestInstance(Lifecycle.PER_CLASS)
 class CategoriasControllerTest {
 	
 	@Autowired
@@ -35,13 +48,48 @@ class CategoriasControllerTest {
 	@Autowired
 	private JacksonTester<List<DadosDetalhamentoVideos>> dadosDetalhamento;
 	
+	private String token;
+	
+	@Autowired
+	private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private TokenService tokenService;
+	
+	@Autowired
+	private JacksonTester<DadosLogin> dadosLogin;
+	
+	@Autowired
+	private JacksonTester<DadosAutenticacaoJWT> dadosAutenticacao;
+	
+	@Autowired
+	private JacksonTester<WrapperVideos> dados;
+	
+	@BeforeAll
+	void login() throws IOException, Exception {
+		var response = mvc.perform(post("/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(
+						dadosLogin.write(new DadosLogin("maxuel", "123456"))
+						.getJson())
+				).andReturn().getResponse();
+	
+		var tokenJWT = dadosAutenticacao.parseObject(response.getContentAsString());
+		token = tokenJWT.token();
+	}
+	
 	@Test
 	@DisplayName("Deveria retornar codigo Http 200 e retornar o conteudo caso categoria contenha videos")
 	void test_cenario01() throws Exception {
-		var response = mvc.perform(get("/categorias/1/videos"))
+		
+		var response = mvc.perform(get("/categorias/1/videos")
+						.header("Authorization", "Bearer " + token))
 				.andReturn().getResponse();
 		
-		var videos = dadosDetalhamento.parseObject(response.getContentAsString());
+		
+		var allVideos = dados.parseObject(response.getContentAsString());
+
+		var videos = allVideos.getContent();
 		
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 		assertThat(videos.size()).isEqualTo(3);
@@ -60,15 +108,41 @@ class CategoriasControllerTest {
 	}
 	
 	@Test
-	@DisplayName("Deveria retornar codigo Http 200 porem sem nenhum conteudo caso categoria não contenha nenhum video")
+	@DisplayName("Deveria retornar codigo Http 403")
 	void test_cenario02() throws Exception {
-		var response = mvc.perform(get("/categorias/3/videos"))
-				.andReturn().getResponse();
 		
-		var videos = dadosDetalhamento.parseObject(response.getContentAsString());
+		assertThatThrownBy(() -> {
+			var response = mvc.perform(get("/categorias/3/videos")
+					.header("Authorization", ""))
+					.andReturn().getResponse();
+		}).isInstanceOf(RuntimeException.class)
+			.hasMessage("Token JWT invalido ou expirado");
 		
-		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-		assertThat(videos.size()).isEqualTo(0);
+		
+		//assertThat(response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
 	}
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
