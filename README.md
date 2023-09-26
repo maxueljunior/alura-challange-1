@@ -10,4 +10,4 @@ O Desafio da semana nº 2 está em `Concluido`
 
 ### 3º Semana
 
-O Desafio da semana nº 2 está em `Andamento`
+O Desafio da semana nº 2 está em `Concluido`
